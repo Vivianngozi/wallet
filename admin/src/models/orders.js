@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    employeeName: {
-        type: String,
+    employeeId: {
+        type: Schema.Types.ObjectId,
         required: true,
     },
     productName: {

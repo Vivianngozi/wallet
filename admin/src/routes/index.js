@@ -4,6 +4,8 @@ import { register, login } from '../controllers/authentication.js';
 import { createEmployee, updateEmployee, readEmployee, deleteAcc } from '../controllers/employee_crud/employee.js'
 import { createProduct, viewAllProduct, viewOneProduct, updateProduct, deleteProduct } from '../controllers/products/product.js';
 import { readOrder } from '../controllers/orders/order.js';
+import { admin_wallet } from '../controllers/wallet.js';
+import { jwtValidator } from '../middleware/authentication.js';
 
 // register for admin
 router.post('/register', register);
@@ -13,21 +15,25 @@ router.post('/login', login);
 
 
 // employee  
-router.post('/signup/employe', createEmployee);
-router.put('/update/employe/:empid', updateEmployee);
-router.get('/read/employee', readEmployee);
-router.delete('/delete/employe/:empid', deleteAcc);
+router.post('/signup/employe', jwtValidator, createEmployee);
+router.put('/update/employe/:empid', jwtValidator, updateEmployee);
+router.get('/read/employee', jwtValidator, readEmployee);
+router.delete('/delete/employe/:empid', jwtValidator, deleteAcc);
 
 
 // product
-router.post('/product', createProduct);
-router.get('/allProduct', viewAllProduct);
-router.get('/product/:id', viewOneProduct);
-router.put('/product/:id', updateProduct);
-router.delete('/product/:id', deleteProduct);
+router.post('/product', jwtValidator, createProduct);
+router.get('/allProduct', jwtValidator, viewAllProduct);
+router.get('/product/:id', jwtValidator, viewOneProduct);
+router.put('/product/:id', jwtValidator, updateProduct);
+router.delete('/product/:id', jwtValidator, deleteProduct);
 
 // view orders
-router.get('/orders', readOrder);
+router.get('/orders', jwtValidator, readOrder);
+
+// view wallet
+router.get('/wallet', jwtValidator, admin_wallet);
+
 
 
 export {router};

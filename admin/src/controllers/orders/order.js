@@ -1,7 +1,5 @@
 import Goods from "../../models/orders.js";
 
-
-
 export async function readOrder (req, res){
     try {
             const goods = await Goods.find();
