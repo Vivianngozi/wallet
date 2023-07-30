@@ -13,6 +13,10 @@ const employeeSchema = new Schema({
         required: true,
         default: 0
     },
+    otp: {
+        type: Number,
+        default: null
+    },
     password: {
         type: String,
         required: true

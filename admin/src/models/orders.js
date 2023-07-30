@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
     employeeId: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true,
     },
     productName: {

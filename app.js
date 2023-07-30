@@ -5,7 +5,7 @@ const app = express();
 import bodyParser from 'body-parser';
 import DB from './admin/src/models/db.js';
 import { router as adminRouter } from './admin/src/routes/index.js';
-import { empRouter as employRouter } from './employee/src/routes/index.js';
+import { empRouter as employRouter } from './employee/src/routes/index.js'; 
 DB.connect();
 
 app.use(bodyParser.urlencoded({extended: false}));

@@ -5,6 +5,9 @@ const walletSchema = new Schema({
     amount: {
         type: Number,
         default: 0
+    },
+    admin: {
+        type: String
     }
 });
 

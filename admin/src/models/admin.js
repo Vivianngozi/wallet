@@ -8,13 +8,13 @@ const adminSchema = new Schema({
         required: true,
     },
 
-    username: {
-        type: String,
-        required: true
-    },
     password: {
         type: String,
         required: true
+    },
+    otp: {
+        type: Number,
+        default: null
     },
     createdAt: {
         type: Date,

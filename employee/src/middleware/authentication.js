@@ -10,10 +10,8 @@ export async function jwtValidator(req, res, next){
     
     try {
         const decoded = jwt.verify(token, process.env.SECRET);
-        console.log(decoded)
-        req.user = decoded.user;
+        req.user = decoded.id;
         next();
-        console.log(process.env.SECRET);
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Invalid Token" });

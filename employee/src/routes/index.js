@@ -2,14 +2,15 @@ import express from 'express';
 const empRouter = express.Router();
 import { login, readOne } from "../controllers/employee_side.js";
 import { viewAllProduct, viewOneProduct } from "../controllers/product.js";
-import { placeOrder, readOrder } from "../controllers/order.js";
+import { placeOrder, readOrder, updateOrder, deleteOrder } from "../controllers/order.js";
+import { forgetPassword, resetPassword } from "../controllers/employee_passwordReset.js";
 import { jwtValidator } from '../middleware/authentication.js';
 
 // login employee
 empRouter.post('/login/employee', login);
 
 // get details
-empRouter.get('/employeeDetail/:id', jwtValidator, readOne);
+empRouter.get('/', jwtValidator, readOne);
 
 // view all products
 empRouter.get('/product', jwtValidator, viewAllProduct);
@@ -18,15 +19,19 @@ empRouter.get('/product', jwtValidator, viewAllProduct);
 empRouter.get('/product/:id', jwtValidator, viewOneProduct);
 
 // place order
-empRouter.post('/order/:admid/:empid/:proid/:prodName', jwtValidator, placeOrder);
+empRouter.post('/order', jwtValidator, placeOrder);
+
 
 // view orders
-empRouter.get('/order/:empId', jwtValidator, readOrder);
+empRouter.get('/order', jwtValidator, readOrder);
 
+
+empRouter.post('/forget-password/:id', forgetPassword)
+empRouter.post('/reset-password', resetPassword);
 
 empRouter.all('*', function(req, res){
     res.status(404).json({
-        "message": "not found"
+        "message": "Page does not exist"
     });
   });
 
