@@ -16,10 +16,10 @@ const adminSchema = new Schema({
         type: Number,
         default: null
     },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-      }
+    balance: {
+        type: Number,
+        default: 0
+    }
 });
 
 

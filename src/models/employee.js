@@ -10,7 +10,6 @@ const employeeSchema = new Schema({
 
     balance: {
         type: Number,
-        required: true,
         default: 0
     },
     otp: {

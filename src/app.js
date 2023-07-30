@@ -3,9 +3,9 @@ import express from 'express';
 dotenv.config();
 const app = express();
 import bodyParser from 'body-parser';
-import DB from './admin/src/models/db.js';
-import { router as adminRouter } from './admin/src/routes/index.js';
-import { empRouter as employRouter } from './employee/src/routes/index.js'; 
+import DB from './db.js';
+import adminRoute  from './routes/admin.route.js';
+import employeeRoute from './routes/employee.route.js'; 
 DB.connect();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -13,8 +13,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
-app.use('/admin', adminRouter);
-app.use('/employee', employRouter);
+app.use('/admin', adminRoute);
+app.use('/employee', employeeRoute);
 
 app.get('/health', (req, res)=>{
     res.status(200).json({

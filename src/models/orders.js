@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    employeeId: {
+    employee: {
         type: String,
         required: true,
     },
-    productName: {
+    product: {
         type: String,
         required: true,
     },

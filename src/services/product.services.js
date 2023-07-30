@@ -1,10 +1,9 @@
-import mongoose from "mongoose";
 import Product from "../models/products.js";
 
-// create a product
-export async function createProduct (req, res){
+
+export async function createProduct (payload){
     try {
-        const {name, price, quantity, description} = req.body;
+        const {name, price, quantity, description} = payload;
 
         let errors = [];
         if(typeof name != "string" || name.length == 0){
@@ -44,8 +43,7 @@ export async function createProduct (req, res){
     }
 }
 
-// view all products
-export async function viewAllProduct (req, res){
+export async function viewAllProduct (){
     try {
         const product = await Product.find();
         res.status(200).json(product);
@@ -54,10 +52,9 @@ export async function viewAllProduct (req, res){
     }
 }
 
-// view one product
-export async function viewOneProduct (req, res){
+export async function viewOneProduct (id){
     try{
-        const product = await Product.findById({_id: req.params.id});
+        const product = await Product.findById(id);
         if(product){
             res.status(200).json(product);
         } else{
@@ -70,11 +67,10 @@ export async function viewOneProduct (req, res){
     }
 }
 
-// update
-export async function updateProduct (req, res){
+export async function updateProduct (id, payload){
     try {
         
-        let {name, price, description, quantity} = req.body;
+        let {name, price, description, quantity} = payload;
         let errors = [];
         if(name && typeof name != "string"){
             errors.push({Name: "The product name is required or it is not the right format"})
@@ -92,14 +88,14 @@ export async function updateProduct (req, res){
             res.status(400).json(errors);
             return;
         } 
-        const product = await Product.findById({_id: req.params.id});
+        const product = await Product.findById(id);
         if(!quantity){
             quantity = 0;
         }
         const new_quantity = product.quantity + quantity;
       
 
-        const updateproduct = await Product.findOneAndUpdate({_id: req.params.id}, {name, price, quantity: new_quantity, description}, {new: true});
+        const updateproduct = await Product.findOneAndUpdate({_id: id}, {name, price, quantity: new_quantity, description});
         if(updateproduct){
             res.status(201).json(updateproduct)
         } else {
@@ -114,10 +110,9 @@ export async function updateProduct (req, res){
     }
 }
 
-// delete
-export async function deleteProduct (req, res) {
+export async function deleteProduct (id) {
     try {
-        const product = await Product.findByIdAndDelete({_id: req.params.id});
+        const product = await Product.findByIdAndDelete(id);
         if(product){
             res.status(200).json({
                 message: "Deleted successfully"
