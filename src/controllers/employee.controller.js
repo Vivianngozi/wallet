@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Employee, Order } from "../models/index.js";
-
+import { Employee, Order, Product } from "../models/index.js";
+import {forgetOnePassword} from "../services/employee.service.js"
 // login to employee account
 export async function login(req, res) {
 
@@ -106,8 +106,9 @@ export async function placeOrder(req, res) {
                 return;
             }
                      
-            employeeid.balance -= total_price;
-            await employee.save()
+            employee.balance -= total_price;
+            await employee.save();
+            await Product.findByIdAndUpdate({_id: product._id}, {quantity: product.quantity - quantity});
             const orders = new Order({
                 employee: employee._id, product: product._id, quantity, total_price
             });
@@ -124,12 +125,51 @@ export async function placeOrder(req, res) {
 
     export async function allOrders (req, res){
         try {
-            const orders = await Orders.find({employeeId: req.user});
-    
-            res.status(200).json(orders);
+            const orders = await Order.find({employeeId: req.user});
+            if(!orders){
+                res.status(404).json({
+                    message: "No order has been made"
+                })
+            }else{
+                res.status(200).json(orders);
+            }
          
         } catch (error) {
             res.status(500).json(error.message);
+            console.log(error)
         }
         
     }
+
+    // forget password
+export async function forgetPassword(req, res){
+    try {
+        const { username, age, favouriteColor, password} = req.body;
+        let errors = []
+        if (typeof username != "string") {
+            errors.push({ username: "Username is required or is not supported" })
+        }
+
+        if (typeof age != "number") {
+            errors.push({ Age: "Age is required or is not supported" })
+        }
+
+        if (typeof favouriteColor != "string" ) {
+            errors.push({ favouriteColor: "Favourite Color id is required or is not in the right format" })
+        }
+
+        if (typeof password != "string" ) {
+            errors.push({ password: "password Color id is required or is not in the right format" })
+        }
+        if (errors.length > 0) {
+            res.status(400).json(errors)
+            return 
+        }
+        const employee = await forgetOnePassword(req.body);
+        res.status(employee.message['username']? 200 : 400).json({...employee});
+        }
+       catch (error) {
+        res.status(500).json(error)
+        console.log(error)
+    }
+}

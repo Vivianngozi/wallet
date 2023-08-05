@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
-import Employee from "../models/employee.js";
+import {Employee, Product, Order} from "../models/index.js";
 
 
 // create employee
-export async function createEmployee ({username, password}) {
+export async function createEmployee ({username, age, favouriteColor, password}) {
     let employee = await Employee.findOne({
         username
     });
@@ -15,7 +15,9 @@ export async function createEmployee ({username, password}) {
     }
 
     employee = new Employee({
-        username
+        username,
+        age,
+        favouriteColor
     });
 
     employee.password = await bcrypt.hash(password, 10);
@@ -49,6 +51,7 @@ export async function payEmployee (id, amount) {
             "message": "Employee not found"
         }
     }
+
     employee.balance += amount;
     await employee.save()
     return { message: "Payment successful"} 
@@ -56,6 +59,7 @@ export async function payEmployee (id, amount) {
     console.log(error)
     }
 }
+
 
 // delete employee account
 export async function deleteEmployee (id) {
@@ -69,5 +73,23 @@ export async function deleteEmployee (id) {
             message: "Employee not found"
         }
     }
+}
+
+// forget password
+export async function forgetOnePassword({ username, age, favouriteColor, password}){
+    const employee = await Employee.findOne({username});
+    if(!employee || employee.age != age || employee.favouriteColor != favouriteColor){
+        return{
+            message: "Invalid credentials"
+        }
+    }
+
+    employee.password = await bcrypt.hash(password, 10);
+    employee.save();
+
+    return{
+        message: "password has ben updated"
+    }
+    
 }
 

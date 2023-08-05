@@ -7,7 +7,14 @@ const employeeSchema = new Schema({
         required: true,
         unique: true
     },
-
+    age: {
+        type: Number,
+        required: true
+    },
+    favouriteColor: {
+        type: String,
+        required: true
+    },
     balance: {
         type: Number,
         default: 0

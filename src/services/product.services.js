@@ -2,127 +2,78 @@ import Product from "../models/products.js";
 
 
 export async function createProduct (payload){
-    try {
-        const {name, price, quantity, description} = payload;
 
-        let errors = [];
-        if(typeof name != "string" || name.length == 0){
-            errors.push({Product: "The product name is required or it is not the right format"})
-        }
-        if(typeof price != "number"){
-            errors.push({price: "Price must be provided and must be a number"})
-        }
-        if(typeof quantity != "number"){
-            errors.push({quantity: "Quantity must be provided and must be a number"})
-        }
-        if(typeof description != "string" || description.length == 0){
-            errors.push({description: "Description must be provided and must be a string"})
-        }
-        if(errors.length > 0){
-            res.status(400).json(errors);
-            return;
-        } 
+        const {name, price, quantity, description} = payload;
             const product = await Product.create({
                 name,
                 price,
                 quantity,
                 description
             });
-            res.status(201).json({
-                id: product._id,
-                Product: product.name,
-                Price: product.price,
-                Quantity: product.quantity,
-                Description: product.description
-            })
+            
+            return{
+                message: await Product.findOne({_id: product._id})
+            }
 
-        
-    } catch (error) {
-        res.status(500).json(error.message)
-        console.log(error)
-    }
+    
 }
 
 export async function viewAllProduct (){
-    try {
-        const product = await Product.find();
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(500).json(error.message);
+    const product= await Product.find();
+    if(product){
+        return{
+            Data: product
+        }
+    } else{
+        return{
+            message: "No product available"
+        }
     }
 }
 
 export async function viewOneProduct (id){
-    try{
         const product = await Product.findById(id);
         if(product){
-            res.status(200).json(product);
+            return product;
         } else{
-            res.status(404).json({
+            return {
                 message: "Not product found with this ID"
-            })
+            }
         }
-    }catch(error){
-        res.status(500).json(error.message);
-    }
+
 }
 
 export async function updateProduct (id, payload){
-    try {
-        
-        let {name, price, description, quantity} = payload;
-        let errors = [];
-        if(name && typeof name != "string"){
-            errors.push({Name: "The product name is required or it is not the right format"})
+    let {name, price, description, quantity} = payload;
+        const product = await Product.findById({_id: id});
+        if(!product){
+            return {
+                message: "Product doesn't exist"
+            }
         }
-        if(price && typeof price != "number"){
-            errors.push({price: "Price must be provided and must be a number"})
-        }
-        if(quantity && typeof quantity != "number"){
-            errors.push({quantity: "Quantity must be provided and must be a number"})
-        }
-        if(description && typeof description != "string"){
-            errors.push({description: "Description must be provided and must be a string"})
-        }
-        if(errors.length > 0){
-            res.status(400).json(errors);
-            return;
-        } 
-        const product = await Product.findById(id);
         if(!quantity){
             quantity = 0;
         }
+
         const new_quantity = product.quantity + quantity;
-      
 
-        const updateproduct = await Product.findOneAndUpdate({_id: id}, {name, price, quantity: new_quantity, description});
-        if(updateproduct){
-            res.status(201).json(updateproduct)
-        } else {
-            res.status(404).json({
-                message: "Product does not exist"
-            })
-        }
+        const updateproduct = await Product.findByIdAndUpdate({_id: product._id}, {name, price, quantity: new_quantity, description}, {new: true});
 
-    } catch (error) {
-        res.status(500).json(error.message);
-        console.log(error)
-    }
+            return {
+                updateproduct
+            };
 }
 
 export async function deleteProduct (id) {
-    try {
         const product = await Product.findByIdAndDelete(id);
         if(product){
-            res.status(200).json({
+            return {
                 message: "Deleted successfully"
-            })
+            };
         } else{
-            res.status(404).json({
+            return{
                 message: "Product not found"
-            })
+            }
         }
-    } catch (error) {
-        res.status(500).json(error.message)
-    }
+
 }

@@ -16,7 +16,7 @@ const adminSchema = new Schema({
         type: Number,
         default: null
     },
-    balance: {
+    wallet: {
         type: Number,
         default: 0
     }

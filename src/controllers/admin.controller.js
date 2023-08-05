@@ -6,58 +6,98 @@ import Order from "../models/orders.js";
 import {createEmployee,deleteEmployee, getEmployee, getSingleEmployee, payEmployee } from '../services/employee.service.js'
 
 // register an admin
-export async function register(req, res) {
-    const {email, password} = req.body;
-    try{
-        let admin = await Admin.findOne({ email });
+// export async function register(req, res) {
+//     const {email, password} = req.body;
+//     try{
+//         let admin = await Admin.findOne({ email });
 
-        if(admin){
-            return res.status(400).json({
-                message: "Account already exist"
-            });
-        }
+//         if(admin){
+//             return res.status(400).json({
+//                 message: "Account already exist"
+//             });
+//         }
 
-        admin = new Admin({email });
+//         admin = new Admin({email });
 
-        admin.password = await bcrypt.hash(password, 10);
-        await admin.save();
+//         admin.password = await bcrypt.hash(password, 10);
+//         await admin.save();
 
-        res.status(201).json({token: jwt.sign({ id: admin.id, admin: true },process.env.SECRET)})
+//         res.status(201).json({token: jwt.sign({ id: admin.id, admin: true },process.env.SECRET)})
         
-    } catch(error){
-        res.status(500).json(error);
-        console.log(error)
-    }
+//     } catch(error){
+//         res.status(500).json(error);
+//         console.log(error)
+//     }
     
-}
+// }
 
 
-// login for an admin
-export async function login (req, res){
+// // login for an admin
+// export async function login (req, res){
+//     const {email, password} = req.body;
+//     try {
+//         let admin = await Admin.findOne({
+//             email
+//         });
+
+//         if(!admin || !await bcrypt.compare(password, admin.password)){
+//             return res.status(401).json({
+//                 message: "Invalid Credentials"
+//             })
+//         }
+
+//         const payload = {
+//             id: admin.id
+//         };
+//         res.status(200).json({
+//             data: payload,
+//             token: jwt.sign( payload,process.env.SECRET)
+//         })
+//     } catch (error) {
+//        res.status(500).json(error) 
+//     }
+// }
+export async function adminAccess(req, res){
     const {email, password} = req.body;
     try {
-        let admin = await Admin.findOne({
-            email
-        });
+        let admin1 = await Admin.findOne();
+        if(!admin1){
+            const admin = new Admin({email });
 
-        if(!admin || !await bcrypt.compare(password, admin.password)){
-            return res.status(401).json({
-                message: "Invalid Credentials"
+            admin.password = await bcrypt.hash(password, 10);
+            await admin.save();
+
+            res.status(201).json({token: jwt.sign({ id: admin.id, admin: true },process.env.SECRET)})
+        } else{
+            let admin = await Admin.findOne({
+                email
+            });
+    
+            if(!admin || !await bcrypt.compare(password, admin.password)){
+                return res.status(401).json({
+                    message: "Invalid Credentials"
+                })
+            }
+    
+            const payload = {
+                id: admin.id
+            };
+            res.status(200).json({
+                data: payload,
+                token: jwt.sign( payload,process.env.SECRET)
             })
         }
-
-        const payload = {
-            id: admin.id
-        };
-        res.status(200).json({
-            data: payload,
-            token: jwt.sign( payload,process.env.SECRET)
-        })
     } catch (error) {
-       res.status(500).json(error) 
+        res.status(500).json({
+            message: "An error has occured"
+        });
+        console.log(error);
     }
 }
 
+export async function viewAdminDetails(req, res){
+    res.status(200).json({data: await Admin.find().select('-password')});
+}
 
 export async function forgetPassword(req, res){
     try {
@@ -145,7 +185,7 @@ export async function readOrder (req, res){
 export async function getBalance(req, res) {
     try {
 
-        const wallet = await Admin.findOne({_id: req.user}).select('amount');
+        const wallet = await Admin.findOne({_id: req.user}).select('wallet');
         res.status(200).json({
            wallet
         });
@@ -158,7 +198,7 @@ export async function getBalance(req, res) {
 
 export async function createEmployees(req, res){
     try {
-        const { username, password} = req.body;
+        const { username, age, favouriteColor, password} = req.body;
         let errors=[]
         if(typeof username != "string" || username.length == 0){
             errors.push({username: "Username is required or is not in the right format"})
@@ -167,6 +207,15 @@ export async function createEmployees(req, res){
         if(typeof password != "string" || password.length < 4){
             errors.push({password: "Password is required or is not in the right format"})
         }
+
+        if(typeof age != "number"){
+            errors.push({age: "Age is required or is not in the right format"})
+        }
+
+        if(typeof favouriteColor != "string" || favouriteColor.length == 0){
+            errors.push({favouriteColor: "Favourite Color is required or is not in the right format"})
+        }
+
         if (errors.length > 0){
             res.status(400).json(errors)
         }
@@ -203,3 +252,5 @@ export async function payOneEmployee(req, res){
 export async function deleteOneEmployee (req, res){
     res.status(200).json({...await deleteEmployee(req.params.id)})
 }
+
+
