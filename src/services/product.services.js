@@ -18,16 +18,25 @@ export async function createProduct (payload){
     
 }
 
-export async function viewAllProduct (){
-    const product= await Product.find();
-    if(product){
-        return{
-            Data: product
-        }
-    } else{
+export async function viewAllProduct ({page = 1, limit = 10} = req.query){
+    
+    const product= await Product.find()
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+
+    const count = await Product.count();
+
+    if(!product){
         return{
             message: "No product available"
         }
+    } 
+    return{
+        Data: product,
+        totalPage: Math.ceil(count / limit),
+        currentPage: page
     }
 }
 

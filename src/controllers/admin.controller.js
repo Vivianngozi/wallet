@@ -4,6 +4,18 @@ import {sendEmail} from "../utils/sendEmail.js";
 import Admin from "../models/admin.js";
 import Order from "../models/orders.js";
 import {createEmployee,deleteEmployee, getEmployee, getSingleEmployee, payEmployee } from '../services/employee.service.js'
+import { createClient } from 'redis';
+
+let redisClient;
+
+(async () => {
+    redisClient = createClient();
+
+    redisClient.on("error", err => console.log('Redis Client Error', err));
+
+    await redisClient.connect();
+
+})();
 
 // register an admin
 // export async function register(req, res) {
@@ -229,6 +241,34 @@ export async function createEmployees(req, res){
 }
 
 export async function getAllEmployees (req, res){
+    let results;
+    let isCached = false;
+    try {
+        const cacheResults = await redisClient.get("employees");
+        if(cacheResults){
+            isCached = true;
+            results = JSON.parse(cacheResults);
+        } else{
+            results = await getEmployee(req.query);
+            if(results.length === 0){
+                throw "API returned an empty array";
+            }
+            await redisClient.set("employees", JSON.stringify(results), {
+                EX: 604800,
+                NX: true,
+            });
+        }
+
+        let result = await getEmployee(req.query);
+        res.status(200).json({fromCache: isCached, result});
+        return;
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error has occured"
+        })
+        console.log(error)
+    }
     res.status(200).json(await getEmployee() )
 }
 

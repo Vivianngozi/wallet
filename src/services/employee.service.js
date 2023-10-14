@@ -31,8 +31,25 @@ export async function createEmployee ({username, age, favouriteColor, password})
 
 
 // read all employee
-export async function getEmployee (){
-    return await Employee.find().select('-password');
+export async function getEmployee ({page = 1, limit = 10} = req.query){
+    const employee = await Employee.find().select('-password')
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+
+    const count = await Employee.count();
+    if(!employee){
+        return{
+            message: " No product found "
+        }
+    }
+    return{
+        Data: employee,
+        totalPage: Math.ceil(count / limit),
+        currentPage: page
+    }
+    // return await Employee.find().select('-password');
 }
 
 // get single employee
